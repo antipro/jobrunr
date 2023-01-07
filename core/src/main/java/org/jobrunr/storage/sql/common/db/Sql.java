@@ -81,13 +81,23 @@ public class Sql<T> {
     }
 
     public Stream<SqlResultSet> select(String statement) {
-        String parsedStatement = parse("select " + statement + suffix);
+        String parsedStatement;
+        if (suffix.contains("WHERE ORA_RN")) {
+            parsedStatement = parse("select * from (select *, rownum as ORA_RN from (select " + statement + suffix);
+        } else {
+            parsedStatement = parse("select " + statement + suffix);
+        }
         SqlSpliterator sqlSpliterator = new SqlSpliterator(connection, parsedStatement, this::setParams);
         return StreamSupport.stream(sqlSpliterator, false);
     }
 
     public Stream<SqlResultSet> execute(String statement) {
-        String parsedStatement = parse(statement + suffix);
+        String parsedStatement;
+        if (suffix.contains("WHERE ORA_RN")) {
+            parsedStatement = parse("select * from (select *, rownum as ORA_RN from (select " + statement + suffix);
+        } else {
+            parsedStatement = parse("select " + statement + suffix);
+        }
         SqlSpliterator sqlSpliterator = new SqlSpliterator(connection, parsedStatement, this::setParams);
         return StreamSupport.stream(sqlSpliterator, false);
     }
