@@ -51,12 +51,15 @@ public class InMemoryStorageProvider extends AbstractStorageProvider {
     }
 
     @Override
-    public void setUpStorageProvider(DatabaseOptions databaseOptions) {}
+    public void setUpStorageProvider(DatabaseOptions databaseOptions) {
+        // nothing to do for InMemoryStorageProvider
+    }
 
     @Override
     public void announceBackgroundJobServer(BackgroundJobServerStatus serverStatus) {
         final BackgroundJobServerStatus backgroundJobServerStatus = new BackgroundJobServerStatus(
                 serverStatus.getId(),
+                serverStatus.getName(),
                 serverStatus.getWorkerPoolSize(),
                 serverStatus.getPollIntervalInSeconds(),
                 serverStatus.getDeleteSucceededJobsAfter(),
@@ -319,11 +322,11 @@ public class InMemoryStorageProvider extends AbstractStorageProvider {
 
     private synchronized void saveJob(Job job) {
         final Job oldJob = jobQueue.get(job.getId());
-        if (oldJob != null && job.getVersion() != oldJob.getVersion()) {
+        if ((oldJob != null && job.getVersion() != oldJob.getVersion()) || (oldJob == null && job.getVersion() > 0)) {
             throw new ConcurrentJobModificationException(job);
         }
 
-        try(JobVersioner jobVersioner = new JobVersioner(job)) {
+        try (JobVersioner jobVersioner = new JobVersioner(job)) {
             jobQueue.put(job.getId(), deepClone(job));
             jobVersioner.commitVersion();
         }

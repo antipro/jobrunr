@@ -12,7 +12,7 @@ public class JobPerformingFilters extends AbstractJobFilters {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobPerformingFilters.class);
 
-    private Job job;
+    private final Job job;
 
     public JobPerformingFilters(Job job, JobDefaultFilters jobFilters) {
         super(job, jobFilters);
@@ -31,8 +31,17 @@ public class JobPerformingFilters extends AbstractJobFilters {
         jobServerFilters().forEach(catchThrowable(jobServerFilter -> jobServerFilter.onProcessing(job)));
     }
 
-    public void runOnJobProcessedFilters() {
+    public void runOnJobProcessingSucceededFilters() {
         jobServerFilters().forEach(catchThrowable(jobServerFilter -> jobServerFilter.onProcessed(job)));
+        jobServerFilters().forEach(catchThrowable(jobServerFilter -> jobServerFilter.onProcessingSucceeded(job)));
+    }
+
+    public void runOnJobProcessingFailedFilters(Exception e) {
+        jobServerFilters().forEach(catchThrowable(jobServerFilter -> jobServerFilter.onProcessingFailed(job, e)));
+    }
+
+    public void runOnJobFailedAfterRetriesFilters() {
+        jobServerFilters().forEach(catchThrowable(jobServerFilter -> jobServerFilter.onFailedAfterRetries(job)));
     }
 
     private Stream<ElectStateFilter> electStateFilters() {
@@ -63,4 +72,5 @@ public class JobPerformingFilters extends AbstractJobFilters {
     Logger getLogger() {
         return LOGGER;
     }
+
 }

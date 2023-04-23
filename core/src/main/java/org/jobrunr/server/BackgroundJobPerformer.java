@@ -38,6 +38,7 @@ public class BackgroundJobPerformer implements Runnable {
     public void run() {
         try {
             backgroundJobServer.getJobZooKeeper().notifyThreadOccupied();
+            MDCMapper.loadMDCContextFromJob(job);
             performJob();
         } catch (Exception e) {
             if (isJobDeletedWhileProcessing(e)) {
@@ -53,6 +54,7 @@ public class BackgroundJobPerformer implements Runnable {
             }
         } finally {
             backgroundJobServer.getJobZooKeeper().notifyThreadIdle();
+            MDC.clear();
         }
     }
 
@@ -79,18 +81,19 @@ public class BackgroundJobPerformer implements Runnable {
 
     private void runActualJob() throws Exception {
         try {
-            MDCMapper.loadMDCContextFromJob(job);
             JobRunrDashboardLogger.setJob(job);
             backgroundJobServer.getJobZooKeeper().startProcessing(job, Thread.currentThread());
             LOGGER.trace("Job(id={}, jobName='{}') is running", job.getId(), job.getJobName());
             jobPerformingFilters.runOnJobProcessingFilters();
             BackgroundJobRunner backgroundJobRunner = backgroundJobServer.getBackgroundJobRunner(job);
             backgroundJobRunner.run(job);
-            jobPerformingFilters.runOnJobProcessedFilters();
+            jobPerformingFilters.runOnJobProcessingSucceededFilters();
+        } catch (Exception e) {
+            jobPerformingFilters.runOnJobProcessingFailedFilters(e);
+            throw e;
         } finally {
             backgroundJobServer.getJobZooKeeper().stopProcessing(job);
             JobRunrDashboardLogger.clearJob();
-            MDC.clear();
         }
     }
 
@@ -139,6 +142,9 @@ public class BackgroundJobPerformer implements Runnable {
         this.backgroundJobServer.getStorageProvider().save(job);
         if (beforeStateElection != afterStateElection) {
             jobPerformingFilters.runOnStateAppliedFilters();
+        }
+        if (afterStateElection == FAILED) {
+            jobPerformingFilters.runOnJobFailedAfterRetriesFilters();
         }
     }
 

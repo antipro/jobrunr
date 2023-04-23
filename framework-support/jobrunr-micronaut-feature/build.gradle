@@ -2,13 +2,13 @@ import java.text.SimpleDateFormat
 
 plugins {
     id 'java-library'
-    id 'io.micronaut.library' version '3.6.2'
+    id 'io.micronaut.library' version '3.7.0'
     id 'maven-publish'
     id 'signing'
 }
 
 micronaut {
-    version '3.7.1'
+    version '3.8.1'
 }
 
 java {
@@ -116,4 +116,8 @@ signing {
         useInMemoryPgpKeys(new String(Base64.decoder.decode(base64Key)), System.getenv('SIGNING_PASSWORD'))
         sign publishing.publications.mavenJava
     }
+}
+
+sonar {
+    skipProject = true
 }

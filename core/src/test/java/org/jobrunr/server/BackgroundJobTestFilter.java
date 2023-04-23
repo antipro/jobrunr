@@ -10,9 +10,12 @@ import java.util.List;
 
 public class BackgroundJobTestFilter implements ApplyStateFilter, JobServerFilter {
 
-    boolean processingPassed;
-    boolean processedPassed;
-    List<String> stateChanges = new ArrayList<>();
+    public boolean onProcessingIsCalled;
+    public boolean onProcessedIsCalled;
+    public boolean onProcessingSucceededIsCalled;
+    public boolean onProcessingFailedIsCalled;
+    public boolean onFailedAfterRetriesIsCalled;
+    public List<String> stateChanges = new ArrayList<>();
 
     @Override
     public void onStateApplied(Job job, JobState oldState, JobState newState) {
@@ -21,11 +24,26 @@ public class BackgroundJobTestFilter implements ApplyStateFilter, JobServerFilte
 
     @Override
     public void onProcessing(Job job) {
-        processingPassed = true;
+        onProcessingIsCalled = true;
     }
 
     @Override
     public void onProcessed(Job job) {
-        processedPassed = true;
+        onProcessedIsCalled = true;
+    }
+
+    @Override
+    public void onProcessingSucceeded(Job job) {
+        onProcessingSucceededIsCalled = true;
+    }
+
+    @Override
+    public void onProcessingFailed(Job job, Exception e) {
+        onProcessingFailedIsCalled = true;
+    }
+
+    @Override
+    public void onFailedAfterRetries(Job job) {
+        onFailedAfterRetriesIsCalled = true;
     }
 }

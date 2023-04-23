@@ -141,6 +141,12 @@ public class ReflectionUtils {
         return declaredConstructor.newInstance(params);
     }
 
+    public static <T> T newInstanceCE(Class<T> clazz) throws ReflectiveOperationException {
+        Constructor<T> defaultConstructor = clazz.getDeclaredConstructor();
+        makeAccessible(defaultConstructor);
+        return defaultConstructor.newInstance();
+    }
+
     public static <T> T newInstance(Class<T> clazz) {
         try {
             Constructor<T> defaultConstructor = clazz.getDeclaredConstructor();
@@ -164,7 +170,7 @@ public class ReflectionUtils {
         return findMethod(clazz, new MethodFinderPredicate(methodName, parameterTypes));
     }
 
-    private static Optional<Method> findMethod(Class<?> clazz, MethodFinderPredicate predicate) {
+    public static Optional<Method> findMethod(Class<?> clazz, Predicate<Method> predicate) {
         final Optional<Method> optionalMethod = stream(clazz.getDeclaredMethods())
                 .filter(predicate)
                 .findFirst();

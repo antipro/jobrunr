@@ -97,7 +97,7 @@ BackgroundJob.schedule(Instant.now().plusHours(5), () -> System.out.println("Rel
 Recurring jobs have never been simpler; just call the following method to perform any kind of recurring task using the [CRON expressions](http://en.wikipedia.org/wiki/Cron#CRON_expression).
 
 ```java
-BackgroundJob.scheduleRecurringly("my-recurring-job", Cron.daily(), () -> service.doWork());
+BackgroundJob.scheduleRecurrently("my-recurring-job", Cron.daily(), () -> service.doWork());
 ```
 
 **Process background tasks inside a web application…**
@@ -121,7 +121,7 @@ Installation
 <dependency>
     <groupId>org.jobrunr</groupId>
     <artifactId>jobrunr</artifactId>
-    <version>5.1.0</version>
+    <version>${jobrunr.version}</version>
 </dependency>
 ```
  
@@ -129,7 +129,7 @@ Installation
  
 Just add the dependency to JobRunr:
  ```groovy
-implementation 'org.jobrunr:jobrunr:5.1.0'
+implementation 'org.jobrunr:jobrunr:${jobrunr.version}'
 ```
 
 Configuration

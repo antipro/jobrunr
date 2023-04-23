@@ -58,8 +58,9 @@ public class JobRunrConfiguration {
 
         /**
          * If multiple types of databases are available in the Spring Context (e.g. a DataSource and an Elastic RestHighLevelClient), this setting allows to specify the type of database for JobRunr to use.
-         * Valid values are 'sql', 'mongodb' and 'elasticsearch'.
+         * Valid values are 'sql', 'mongodb', 'documentdb', and 'elasticsearch'.
          */
+        @ConfigItem
         public Optional<String> type;
     }
 
@@ -105,6 +106,12 @@ public class JobRunrConfiguration {
 
     @ConfigGroup
     public static class BackgroundJobServerConfiguration {
+
+        /**
+         * Sets the name of the {@link org.jobrunr.server.BackgroundJobServer} (used in the dashboard).
+         */
+        @ConfigItem
+        public Optional<String> name;
 
         /**
          * Enables the background processing of jobs.
@@ -207,7 +214,7 @@ public class JobRunrConfiguration {
         /**
          * Configures whether metrics are reported to MicroMeter.
          */
-        @ConfigItem(defaultValue = "true")
+        @ConfigItem(defaultValue = "false")
         public boolean enabled;
     }
 }
